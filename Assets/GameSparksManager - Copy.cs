@@ -5,11 +5,10 @@ using System.Linq;
 using GameSparks.Api.Messages;
 using GameSparks.Api.Requests;
 using GameSparks.Core;
-using GameSparks.RT;
 using UnityEngine;
 
-public class GameSparksManager : MonoBehaviour {
-	private static GameSparksManager instance = null;
+public class GameSparksManagerOld : MonoBehaviour {
+	private static GameSparksManagerOld instance = null;
 	private string _challenge;
 
 	void Awake() {
@@ -33,13 +32,7 @@ public class GameSparksManager : MonoBehaviour {
 		MatchFoundMessage.Listener = message => {
 			Debug.Log("Found Match: " + message.MatchId);
 			message.Participants.ToList().ForEach(p => Debug.Log(p.Id));
-			var rt = gameObject.AddComponent<GameSparksRTUnity>();
-			rt.Configure(message,
-				peerId => { },
-				peerId => { },
-				ready => { },
-				OnPacketReceived);
-			rt.Connect();
+			StartCoroutine(CreateChallengeRequest(message.Participants.ToList()[0].Id));
 		};
 
 		ChallengeStartedMessage.Listener = message => {
@@ -47,10 +40,22 @@ public class GameSparksManager : MonoBehaviour {
 		};
 	}
 
-	private void OnPacketReceived(RTPacket packet) {
-		Debug.Log(packet.Data.ToString());
-	}
+	private IEnumerator CreateChallengeRequest(string id) {
+		yield return null;
+		Debug.Log("Challenging: " + id);
+		new CreateChallengeRequest()
+			.SetChallengeShortCode("challengeClassicBingo")
+			.SetUsersToChallenge(new List<string> {"5b7acad0e8a7928d52b815ef"})
+			.SetEndTime(DateTime.Now.AddYears(1))
+			.Send((response) => {
+				if (response.HasErrors) {
+					Debug.Log(response.Errors.JSON);
+				}
 
+				Debug.Log("Requested challenge: " + response.ChallengeInstanceId);
+				StartCoroutine(StartUpdateLoopAsync(response.ChallengeInstanceId));
+			});
+	}
 
 	private IEnumerator StartUpdateLoopAsync(string challengeInstanceId) {
 		yield return new WaitForSeconds(1f);
