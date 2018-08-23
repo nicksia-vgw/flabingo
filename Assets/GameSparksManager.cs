@@ -6,12 +6,17 @@ using GameSparks.Api.Messages;
 using GameSparks.Api.Requests;
 using GameSparks.Core;
 using GameSparks.RT;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameSparksManager : MonoBehaviour {
 	public GameObject BingoGrid;
 	public GameObject NumbersGrid;
+	public GameObject ReferenceGrid;
+	
+	public GameObject GameCanvas;
+	
 	public Button BingoButton;
 
 	public List<List<int>> WinningLines = new List<List<int>> {
@@ -37,7 +42,7 @@ public class GameSparksManager : MonoBehaviour {
 	private static GameSparksManager instance = null;
 	private string _challenge;
 	private List<int> _knownNumbers = new List<int>();
-	private List<int> _clickedNumbers = new List<int>();
+	private List<int> _clickedNumbers = new List<int> {12};
 
 	private const int STARTING_NUMBERS_CODE = 100;
 	private const int NUMBER_PULLED_CODE = 101;
@@ -69,17 +74,14 @@ public class GameSparksManager : MonoBehaviour {
 		MatchFoundMessage.Listener = message => {
 			Debug.Log("Found Match: " + message.MatchId);
 			message.Participants.ToList().ForEach(p => Debug.Log(p.Id));
-			var rt = gameObject.AddComponent<GameSparksRTUnity>();
+			var rt = GetComponent<GameSparksRTUnity>();
 			rt.Configure(message,
 				peerId => { },
 				peerId => { },
 				ready => { },
 				OnPacketReceived);
 			rt.Connect();
-		};
-
-		ChallengeStartedMessage.Listener = message => {
-			Debug.Log("Started:" + message.Challenge.ChallengeName);
+			GameCanvas.gameObject.SetActive(true);
 		};
 	}
 
@@ -88,6 +90,7 @@ public class GameSparksManager : MonoBehaviour {
 			case STARTING_NUMBERS_CODE:
 				Debug.Log($"Got starting numbers: {packet.Data.GetString(1)}");
 				LoadBingoGrid(packet.Data.GetString(1).Split(',').Select(int.Parse).ToList());
+				LoadReferenceGrid();
 				break;
 			case NUMBER_PULLED_CODE:
 				Debug.Log($"Got numbers: {packet.Data.GetString(1)}");
@@ -101,6 +104,12 @@ public class GameSparksManager : MonoBehaviour {
 				break;
 		}
 		//Debug.Log(packet.OpCode + "-" + packet.Data.ToString());
+	}
+	
+	private void LoadReferenceGrid() {
+		for (int i = 0; i < ReferenceGrid.transform.childCount; i++) {
+			ReferenceGrid.transform.GetChild(i).GetComponentInChildren<Text>().text = (i + 1).ToString();
+		}
 	}
 
 	private void LoadBingoGrid(List<int> numbers) {
@@ -131,6 +140,12 @@ public class GameSparksManager : MonoBehaviour {
 	public void Bingo() {
 		Debug.Log("Pressed Bingo!");
 		BingoButton.GetComponentInChildren<Text>().text = "You win good for you.";
+		GetComponent<GameSparksRTUnity>().Disconnect();
+		GameCanvas.gameObject.SetActive(false);
+	}
+
+	public void StartMatchmaking() {
+		StartCoroutine(StartMatchmakingAsync());
 	}
 
 	private void LoadNumbers(List<int> numbers) {
@@ -138,6 +153,7 @@ public class GameSparksManager : MonoBehaviour {
 		numbers.Reverse();
 		for (int i = 0; i < NumbersGrid.transform.childCount && i < numbers.Count; i++) {
 			NumbersGrid.transform.GetChild(i).GetComponentInChildren<Text>().text = numbers[i].ToString();
+			ReferenceGrid.transform.GetChild(numbers[i] - 1).GetComponentInChildren<Button>().interactable = false;
 		}
 	}
 
@@ -146,14 +162,16 @@ public class GameSparksManager : MonoBehaviour {
 		new DeviceAuthenticationRequest().SetDisplayName("Nick Sia").Send(response => {
 			if (!response.HasErrors) {
 				Debug.Log($"Authenticated as {response.UserId}");
-				StartCoroutine(MatchMakeAsync());
+
 			} else {
 				Debug.Log("Failed to authenticate!");
 			}
 		});
 	}
+	
+	
 
-	private IEnumerator MatchMakeAsync() {
+	private IEnumerator StartMatchmakingAsync() {
 		
 		new MatchmakingRequest()
 			.SetAction(null)
