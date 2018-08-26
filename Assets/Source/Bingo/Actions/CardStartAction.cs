@@ -2,7 +2,8 @@
 using Unidux;
 
 namespace Source.Bingo.Actions {
-    public class CardUpdateNumbersAction : IAction {
+    public class CardStartAction : IAction {
+        public int CardIndex;
         public List<int> StartingNumbers;
     }
 }
