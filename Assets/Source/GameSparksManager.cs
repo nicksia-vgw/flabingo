@@ -91,8 +91,8 @@ public class GameSparksManager : MonoBehaviour {
 		switch (packet.OpCode) {
 			case STARTING_NUMBERS_CODE:
 				Debug.Log($"Got starting numbers: {packet.Data.GetString(1)}");
-				LoadBingoGrid(packet.Data.GetString(1).Split(',').Select(int.Parse).ToList());
-				LoadReferenceGrid();
+				List<int> startingNumbers = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
+				StateManager.Dispatch(new UpdateBingoCardNumbersAction {StartingNumbers = startingNumbers});
 				break;
 			case NUMBER_CALLED_CODE:
 				Debug.Log($"Got numbers: {packet.Data.GetString(1)}");
@@ -107,33 +107,6 @@ public class GameSparksManager : MonoBehaviour {
 				break;
 		}
 		//Debug.Log(packet.OpCode + "-" + packet.Data.ToString());
-	}
-	
-	private void LoadReferenceGrid() {
-		for (int i = 0; i < ReferenceGrid.transform.childCount; i++) {
-			ReferenceGrid.transform.GetChild(i).GetComponentInChildren<Text>().text = (i + 1).ToString();
-		}
-	}
-
-	private void LoadBingoGrid(List<int> numbers) {
-		for (int i = 0; i < numbers.Count; i++) {
-			var index = i;
-			BingoGrid.transform.GetChild(i).GetComponentInChildren<Text>().text = numbers[i].ToString();
-			BingoGrid.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(() => ClickButton(index));
-		}
-	}
-
-	private void ClickButton(int index) {
-		var button = BingoGrid.transform.GetChild(index).GetComponent<Button>();
-		var clickedNumber = int.Parse(BingoGrid.transform.GetChild(index).GetComponentInChildren<Text>().text);
-		if (_hacksEnabled || _knownNumbers.Contains(clickedNumber)) {
-			button.onClick.RemoveAllListeners();
-			button.interactable = false;
-			_clickedNumbers.Add(index);
-			if (WinningLines.Any(l => l.Intersect(_clickedNumbers).Count() == l.Count)) {
-				BingoButton.interactable = true;
-			}
-		}
 	}
 
 	public void EnableHacks() {
@@ -163,8 +136,6 @@ public class GameSparksManager : MonoBehaviour {
 		});
 	}
 	
-	
-
 	private IEnumerator StartMatchmakingAsync() {
 		
 		new MatchmakingRequest()

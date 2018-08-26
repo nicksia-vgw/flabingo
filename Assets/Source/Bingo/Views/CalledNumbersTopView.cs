@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Source.Bingo.Views {
-    public class ReferenceNumbersView : MonoBehaviour {
+    public class CalledNumbersTopView : MonoBehaviour {
         private void OnEnable() {
             StateManager.SubscribeUntilDisable(this, state => {
                 LoadNumbers(state.Bingo.CalledNumbers);
@@ -16,7 +16,7 @@ namespace Source.Bingo.Views {
             }
             
             for (int i = 0; i < transform.childCount && i < numbers.Count; i++) {
-                transform.GetChild(numbers[i] - 1).GetComponentInChildren<Button>().interactable = false;
+                transform.GetChild(i).GetComponentInChildren<Text>().text = numbers[i].ToString();
             }
         }
     }
