@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Source.Bingo.Actions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,40 +10,34 @@ namespace Source.Bingo.Views {
 
         protected void Start() {
             for (int i = 0; i < transform.childCount; i++) {
+                int index = i;
                 transform.GetChild(i).GetComponentInChildren<Text>().text = String.Empty;
-                //transform.GetChild(i).GetComponent<Button>().onClick.AddListener(() => ClickButton(index));
+                transform.GetChild(i).GetComponent<Button>().onClick.AddListener(() => ClickButton(index));
             }
         }
         
         protected void OnEnable() {    
             StateManager.SubscribeUntilDisable(this, state => {
                 if (state.Bingo.Cards[Index] != null) {
-                    UpdateCard(state.Bingo.Cards[Index].Numbers);
+                    UpdateCard(state.Bingo.Cards[Index].Numbers, state.Bingo.Cards[Index].DaubedIndexes);
                 }
             });
             
         }
         
-        private void UpdateCard(List<int> numbers) {
+        private void UpdateCard(List<int> numbers, List<int> daubedIndexes) {
             for (int i = 0; i < transform.childCount; i++) {
-                transform.GetChild(i).GetComponentInChildren<Text>().text = numbers[i].ToString();
-                //transform.GetChild(i).GetComponent<Button>().onClick.AddListener(() => ClickButton(index));
+                Transform child = transform.GetChild(i);
+                child.GetComponentInChildren<Text>().text = numbers[i].ToString();
+                child.GetComponent<Button>().interactable = !daubedIndexes.Contains(i);
             } 
         }
         
-//        private void ClickButton(int index) {
-//            
-//            var button = BingoGrid.transform.GetChild(index).GetComponent<Button>();
-//            var clickedNumber = int.Parse(BingoGrid.transform.GetChild(index).GetComponentInChildren<Text>().text);
-//            if (_hacksEnabled || _knownNumbers.Contains(clickedNumber)) {
-//                button.onClick.RemoveAllListeners();
-//                button.interactable = false;
-//                _clickedNumbers.Add(index);
-//                if (WinningLines.Any(l => l.Intersect(_clickedNumbers).Count() == l.Count)) {
-//                    BingoButton.interactable = true;
-//                }
-//            }
-//        }
+        private void ClickButton(int index) {
+            StateManager.Dispatch(new CardDaubNumberAction {CardIndex = Index, NumberIndex = index}); 
+            
+
+        }
         
     }
 }

@@ -2,7 +2,7 @@
 using Unidux;
 
 namespace Source.Bingo.Actions {
-    public class UpdateCalledNumbersAction : IAction {
+    public class CalledNumbersUpdateAction : IAction {
         public List<int> CalledNumbers;
     }
 }

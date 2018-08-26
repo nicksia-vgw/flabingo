@@ -92,12 +92,12 @@ public class GameSparksManager : MonoBehaviour {
 			case STARTING_NUMBERS_CODE:
 				Debug.Log($"Got starting numbers: {packet.Data.GetString(1)}");
 				List<int> startingNumbers = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
-				StateManager.Dispatch(new UpdateBingoCardNumbersAction {StartingNumbers = startingNumbers});
+				StateManager.Dispatch(new CardUpdateNumbersAction {StartingNumbers = startingNumbers});
 				break;
 			case NUMBER_CALLED_CODE:
 				Debug.Log($"Got numbers: {packet.Data.GetString(1)}");
 				List<int> numbersCalled = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
-				StateManager.Dispatch(new UpdateCalledNumbersAction {CalledNumbers = numbersCalled});
+				StateManager.Dispatch(new CalledNumbersUpdateAction {CalledNumbers = numbersCalled});
 				break;
 			case PLAYER_ID_CODE: 
 				Debug.Log($"I am player: {packet.Data.GetString(1)}");
