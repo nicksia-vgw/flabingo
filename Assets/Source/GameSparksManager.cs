@@ -6,6 +6,8 @@ using GameSparks.Api.Messages;
 using GameSparks.Api.Requests;
 using GameSparks.Core;
 using GameSparks.RT;
+using Source;
+using Source.Bingo.Actions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,7 +47,7 @@ public class GameSparksManager : MonoBehaviour {
 	private List<int> _clickedNumbers = new List<int> {12};
 
 	private const int STARTING_NUMBERS_CODE = 100;
-	private const int NUMBER_PULLED_CODE = 101;
+	private const int NUMBER_CALLED_CODE = 101;
 	private const int PLAYER_ID_CODE = 102;
 	private const int END_GAME_CODE = 110;
 
@@ -92,9 +94,10 @@ public class GameSparksManager : MonoBehaviour {
 				LoadBingoGrid(packet.Data.GetString(1).Split(',').Select(int.Parse).ToList());
 				LoadReferenceGrid();
 				break;
-			case NUMBER_PULLED_CODE:
+			case NUMBER_CALLED_CODE:
 				Debug.Log($"Got numbers: {packet.Data.GetString(1)}");
-				LoadNumbers(packet.Data.GetString(1).Split(',').Select(int.Parse).ToList());
+				List<int> numbersCalled = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
+				StateManager.Dispatch(new UpdateCalledNumbersAction {CalledNumbers = numbersCalled});
 				break;
 			case PLAYER_ID_CODE: 
 				Debug.Log($"I am player: {packet.Data.GetString(1)}");
@@ -148,15 +151,6 @@ public class GameSparksManager : MonoBehaviour {
 		StartCoroutine(StartMatchmakingAsync());
 	}
 
-	private void LoadNumbers(List<int> numbers) {
-		_knownNumbers = numbers;
-		numbers.Reverse();
-		for (int i = 0; i < NumbersGrid.transform.childCount && i < numbers.Count; i++) {
-			NumbersGrid.transform.GetChild(i).GetComponentInChildren<Text>().text = numbers[i].ToString();
-			ReferenceGrid.transform.GetChild(numbers[i] - 1).GetComponentInChildren<Button>().interactable = false;
-		}
-	}
-
 	private IEnumerator AuthAsync() {
 		yield return new WaitForSeconds(1f);
 		new DeviceAuthenticationRequest().SetDisplayName("Nick Sia").Send(response => {
@@ -184,7 +178,3 @@ public class GameSparksManager : MonoBehaviour {
 		
 	}
 }
-
-//.SetDisplayName("Nick Sia")
-//.SetPassword("password")
-//.SetUserName("Nick Sia")
