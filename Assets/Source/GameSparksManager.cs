@@ -41,6 +41,8 @@ namespace Source {
 		}
 
 		void Start() {
+			Application.targetFrameRate = 60;
+			
 			StartCoroutine(AuthAsync());
 			MatchUpdatedMessage.Listener = message => {
 				Debug.Log("Updated Match!");
@@ -70,7 +72,9 @@ namespace Source {
 		public void Bingo() {
 			Debug.Log("Pressed Bingo!");
 			SetBlockingMessage("Bingo!");
-			GetComponent<GameSparksRTUnity>().SendData(BINGO_CODE, GameSparksRT.DeliveryIntent.RELIABLE, new RTData(), new int[]{ 0 });
+			RTData data = new RTData();
+			data.SetString(1, "Bingo!");
+			GetComponent<GameSparksRTUnity>().SendData(BINGO_CODE, GameSparksRT.DeliveryIntent.RELIABLE, data, new int[]{ 0 });
 		}
 		
 
@@ -110,7 +114,7 @@ namespace Source {
 		}
 
 		private IEnumerator EndGame() {
-			yield return new WaitForSeconds(2f);
+			yield return new WaitForSeconds(1f);
 			HideBlockingMessage();
 			GameCanvas.gameObject.SetActive(false);
 			StateManager.Dispatch(new ResetGameAction());
