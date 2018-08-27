@@ -69,9 +69,8 @@ namespace Source {
 
 		public void Bingo() {
 			Debug.Log("Pressed Bingo!");
+			SetBlockingMessage("Bingo!");
 			GetComponent<GameSparksRTUnity>().SendData(BINGO_CODE, GameSparksRT.DeliveryIntent.RELIABLE, new RTData(), new int[]{ 0 });
-			GameCanvas.gameObject.SetActive(false);
-			StateManager.Dispatch(new ResetGameAction());
 		}
 		
 
@@ -103,11 +102,20 @@ namespace Source {
 					Debug.Log("Disconnected!");
 					GetComponent<GameSparksRTUnity>().Disconnect();
 					StartCoroutine(UpdateAccountDelayed(1.5f));
+					StartCoroutine(EndGame());
+
 					break;
 			}
 			//Debug.Log(packet.OpCode + "-" + packet.Data.ToString());
 		}
-		
+
+		private IEnumerator EndGame() {
+			yield return new WaitForSeconds(2f);
+			HideBlockingMessage();
+			GameCanvas.gameObject.SetActive(false);
+			StateManager.Dispatch(new ResetGameAction());
+		}
+
 		private IEnumerator AuthAsync() {
 			SetBlockingMessage("Logging in...");
 			yield return new WaitForSeconds(1f);
@@ -164,7 +172,7 @@ namespace Source {
 		private IEnumerator ScaleOutAsync(GameObject gameObj) {
 			Transform firstChild = gameObj.transform.GetChild(0);
 			while (firstChild.localScale.y > 0) {
-				firstChild.localScale = new Vector3(1, firstChild.localScale.y - 0.075f, 1);
+				firstChild.localScale = new Vector3(1, firstChild.localScale.y - 0.09f, 1);
 				yield return null;
 			}
 			
