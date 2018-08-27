@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using GameSparks.Api.Messages;
 using GameSparks.Api.Requests;
+using GameSparks.Core;
 using GameSparks.RT;
 using Source.Bingo.Actions;
+using Source.Player.Actions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,6 +58,28 @@ namespace Source {
 				GameCanvas.gameObject.SetActive(true);
 			};
 		}
+		
+		
+		public void EnableHacks() {
+			_hacksEnabled = true;
+		}
+
+		public void Bingo() {
+			Debug.Log("Pressed Bingo!");
+			GetComponent<GameSparksRTUnity>().SendData(BINGO_CODE, GameSparksRT.DeliveryIntent.RELIABLE, new RTData(), new int[]{ 0 });
+			GameCanvas.gameObject.SetActive(false);
+			StateManager.Dispatch(new ResetGameAction());
+		}
+		
+
+		public void StartMatchmaking() {
+			StartCoroutine(StartMatchmakingAsync());
+		}
+
+		public void UpdateAccount() {
+			new AccountDetailsRequest()
+				.Send(response => StateManager.Dispatch(new AccountDetailsResponseAction { AccountDetailsResponse = response } ));
+		}
 
 		private void OnPacketReceived(RTPacket packet) {
 			switch (packet.OpCode) {
@@ -73,30 +97,19 @@ namespace Source {
 					Debug.Log($"I am player: {packet.Data.GetString(1)}");
 					break;
 				case END_GAME_CODE: 
-					Debug.Log("Game finished!");
+					Debug.Log("Disconnected!");
+					GetComponent<GameSparksRTUnity>().Disconnect();
+					StartCoroutine(UpdateAccountDelayed(1.5f));
 					break;
 			}
 			//Debug.Log(packet.OpCode + "-" + packet.Data.ToString());
 		}
-
-		public void EnableHacks() {
-			_hacksEnabled = true;
-		}
-
-		public void Bingo() {
-			Debug.Log("Pressed Bingo!");
-			GetComponent<GameSparksRTUnity>().Disconnect();
-			GameCanvas.gameObject.SetActive(false);
-			StateManager.Dispatch(new ResetGameAction());
-		}
-
-		public void StartMatchmaking() {
-			StartCoroutine(StartMatchmakingAsync());
-		}
-
+		
 		private IEnumerator AuthAsync() {
 			yield return new WaitForSeconds(1f);
-			new DeviceAuthenticationRequest().SetDisplayName("Nick Sia").Send(response => {
+			new DeviceAuthenticationRequest().SetDisplayName("Player").Send(response => {
+				UpdateAccount();
+				StartCoroutine(StartAccountPolling());
 				if (!response.HasErrors) {
 					Debug.Log($"Authenticated as {response.UserId}");
 
@@ -105,9 +118,20 @@ namespace Source {
 				}
 			});
 		}
-	
+
+		private IEnumerator StartAccountPolling() {
+			while (true) {
+				yield return new WaitForSeconds(10);
+				UpdateAccount();
+			}
+		}
+
+		private IEnumerator UpdateAccountDelayed(float seconds) {
+			yield return new WaitForSeconds(seconds);
+			UpdateAccount();
+		}
+
 		private IEnumerator StartMatchmakingAsync() {
-		
 			new MatchmakingRequest()
 				.SetAction(null)
 				.SetMatchShortCode("matchClassicBingo")
@@ -116,7 +140,6 @@ namespace Source {
 					Debug.Log("Matchmaking Requested");
 				});
 			yield return null;
-		
 		}
 	}
 }

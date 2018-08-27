@@ -7,9 +7,11 @@ namespace Source {
     [Serializable]
     public class State : StateBase {
         public BingoState Bingo;
+        public PlayerState Player;
 
         public State() {
             Bingo = new BingoState();
+            Player = new PlayerState();
         }
     }
 }
