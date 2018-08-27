@@ -13,6 +13,7 @@ using UnityEngine.UI;
 namespace Source {
 	public class GameSparksManager : MonoBehaviour {
 		public GameObject GameCanvas;
+		public GameObject BlockingMessage;
 
 		public static GameSparksManager Instance;
 	
@@ -26,6 +27,7 @@ namespace Source {
 		private const int BINGO_CODE = 201;
 
 		private bool _hacksEnabled;
+		private Coroutine _blockerCoroutine;
 
 		void Awake() {
 			if (Instance == null) // check to see if the instance has a reference
@@ -46,6 +48,7 @@ namespace Source {
 			};
 		
 			MatchFoundMessage.Listener = message => {
+				HideBlockingMessage();
 				Debug.Log("Found Match: " + message.MatchId);
 				message.Participants.ToList().ForEach(p => Debug.Log(p.Id));
 				var rt = GetComponent<GameSparksRTUnity>();
@@ -106,8 +109,10 @@ namespace Source {
 		}
 		
 		private IEnumerator AuthAsync() {
+			SetBlockingMessage("Logging in...");
 			yield return new WaitForSeconds(1f);
 			new DeviceAuthenticationRequest().SetDisplayName("Player").Send(response => {
+				HideBlockingMessage();
 				UpdateAccount();
 				StartCoroutine(StartAccountPolling());
 				if (!response.HasErrors) {
@@ -132,6 +137,7 @@ namespace Source {
 		}
 
 		private IEnumerator StartMatchmakingAsync() {
+			SetBlockingMessage("Finding a room...");
 			new MatchmakingRequest()
 				.SetAction(null)
 				.SetMatchShortCode("matchClassicBingo")
@@ -140,6 +146,30 @@ namespace Source {
 					Debug.Log("Matchmaking Requested");
 				});
 			yield return null;
+		}
+
+		private void SetBlockingMessage(string message) {
+			if (_blockerCoroutine != null) {
+				StopCoroutine(_blockerCoroutine);
+			}
+
+			BlockingMessage.SetActive(true);
+			BlockingMessage.GetComponentInChildren<Text>().text = message;
+		}
+
+		private void HideBlockingMessage() {
+			_blockerCoroutine = StartCoroutine(ScaleOutAsync(BlockingMessage));
+		}
+
+		private IEnumerator ScaleOutAsync(GameObject gameObj) {
+			Transform firstChild = gameObj.transform.GetChild(0);
+			while (firstChild.localScale.y > 0) {
+				firstChild.localScale = new Vector3(1, firstChild.localScale.y - 0.075f, 1);
+				yield return null;
+			}
+			
+			gameObj.SetActive(false);
+			firstChild.transform.localScale = Vector3.one;
 		}
 	}
 }
