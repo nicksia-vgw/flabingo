@@ -97,6 +97,7 @@ namespace Source {
 				case NUMBER_CALLED_CODE:
 					Debug.Log($"Got numbers: {packet.Data.GetString(1)}");
 					List<int> numbersCalled = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
+					AudioController.Play("new_ball_pops");
 					StateManager.Dispatch(new CalledNumbersUpdateAction {CalledNumbers = numbersCalled});
 					break;
 				case PLAYER_ID_CODE: 

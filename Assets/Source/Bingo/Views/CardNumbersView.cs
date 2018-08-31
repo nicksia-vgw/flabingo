@@ -29,6 +29,9 @@ namespace Source.Bingo.Views {
             for (int i = 0; i < transform.childCount; i++) {
                 Transform child = transform.GetChild(i);
                 child.GetComponentInChildren<Text>().text = i < numbers.Count ? numbers[i].ToString() : String.Empty;
+                if (child.GetComponent<Button>().IsInteractable() && daubedIndexes.Contains(i)) {
+                    AudioController.Play("daub");
+                }
                 child.GetComponent<Button>().interactable = !daubedIndexes.Contains(i);
             } 
         }
