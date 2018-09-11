@@ -71,7 +71,7 @@ namespace Source {
 
 		public void Bingo() {
 			Debug.Log("Pressed Bingo!");
-			SetBlockingMessage("Bingo!");
+			//SetBlockingMessage("Bingo!");
 			RTData data = new RTData();
 			data.SetString(1, "Bingo!");
 			GetComponent<GameSparksRTUnity>().SendData(BINGO_CODE, GameSparksRT.DeliveryIntent.RELIABLE, data, new int[]{ 0 });
@@ -115,8 +115,8 @@ namespace Source {
 		}
 
 		private IEnumerator EndGame() {
-			yield return new WaitForSeconds(1f);
-			HideBlockingMessage();
+			yield return new WaitForSeconds(5f);
+			//HideBlockingMessage();
 			GameCanvas.gameObject.SetActive(false);
 			StateManager.Dispatch(new ResetGameAction());
 		}

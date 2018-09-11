@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Hosting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,9 +15,17 @@ namespace Source.Bingo.Views {
             if (numbers == null) {
                 return;
             }
-            
-            for (int i = 0; i < transform.childCount && i < numbers.Count; i++) {
-                transform.GetChild(i).GetComponentInChildren<Text>().text = numbers[i].ToString();
+
+            numbers.Reverse();
+            for (int i = 0; i < transform.childCount; i++) {
+                var child = transform.GetChild(i);
+                if (i < numbers.Count) {
+                    child.gameObject.SetActive(true);
+                    child.GetComponentInChildren<Text>().text = numbers[i].ToString();
+                    child.GetComponent<Image>().sprite = Resources.Load<Sprite>($"bingoball_{numbers[i] / 15}");
+                } else {
+                    child.gameObject.SetActive(false);
+                }
             }
         }
     }
