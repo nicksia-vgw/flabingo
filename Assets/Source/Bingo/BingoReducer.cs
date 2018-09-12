@@ -31,7 +31,7 @@ namespace Source.Bingo {
             BingoCard card = state.Cards[action.CardIndex];
             
             int attemptedNumber = card.Numbers[action.NumberIndex];
-            if (true || state.CalledNumbers.Contains(attemptedNumber)) {
+            if (state.CalledNumbers.Contains(attemptedNumber)) {
                 card.DaubedIndexes.Add(action.NumberIndex);
             }
   

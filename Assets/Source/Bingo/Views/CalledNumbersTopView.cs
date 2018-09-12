@@ -21,12 +21,15 @@ namespace Source.Bingo.Views {
                 var child = transform.GetChild(i);
                 if (i < numbers.Count) {
                     child.gameObject.SetActive(true);
-                    child.GetComponentInChildren<Text>().text = numbers[i].ToString();
+                    child.GetComponentsInChildren<Text>()[1].text = "BINGO"[numbers[i] / 15].ToString();
+                    child.GetComponentsInChildren<Text>()[0].text = numbers[i].ToString();
                     child.GetComponent<Image>().sprite = Resources.Load<Sprite>($"bingoball_{numbers[i] / 15}");
                 } else {
                     child.gameObject.SetActive(false);
                 }
             }
         }
+        
+        
     }
 }
