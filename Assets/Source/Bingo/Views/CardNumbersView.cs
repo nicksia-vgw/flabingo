@@ -27,8 +27,14 @@ namespace Source.Bingo.Views {
         
         private void UpdateCard(List<int> numbers, List<int> daubedIndexes) {
             for (int i = 0; i < transform.childCount; i++) {
+                
+                
                 Transform child = transform.GetChild(i);
-                child.GetComponentInChildren<Text>().text = i < numbers.Count ? numbers[i].ToString() : String.Empty;
+
+                if (i != 12) {
+                    child.GetComponentInChildren<Text>().text = i < numbers.Count ? numbers[i].ToString() : String.Empty;
+                }
+
                 if (!child.GetChild(1).gameObject.activeSelf && daubedIndexes.Contains(i)) {
                     AudioController.Play("daub");
                 }

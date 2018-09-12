@@ -115,7 +115,7 @@ namespace Source {
 		}
 
 		private IEnumerator EndGame() {
-			yield return new WaitForSeconds(5f);
+			yield return new WaitForSeconds(3f);
 			//HideBlockingMessage();
 			GameCanvas.gameObject.SetActive(false);
 			StateManager.Dispatch(new ResetGameAction());
@@ -123,7 +123,7 @@ namespace Source {
 
 		private IEnumerator AuthAsync() {
 			SetBlockingMessage("Logging in...");
-			yield return new WaitForSeconds(1f);
+			yield return new WaitForSeconds(0.5f);
 			new DeviceAuthenticationRequest().SetDisplayName("Player").Send(response => {
 				HideBlockingMessage();
 				UpdateAccount();
