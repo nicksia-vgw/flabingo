@@ -91,8 +91,8 @@ namespace Source {
 			switch (packet.OpCode) {
 				case STARTING_NUMBERS_CODE:
 					Debug.Log($"Got starting numbers: {packet.Data.GetString(1)}");
-					List<int> startingNumbers = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
-					StateManager.Dispatch(new CardStartAction {StartingNumbers = startingNumbers});
+					Enumerable.Range(0, 3).ToList()
+						.ForEach(i => StateManager.Dispatch(new CardStartAction {CardIndex = i, StartingNumbers = packet.Data.GetString((uint) i + 1).Split(',').Select(int.Parse).ToList()}));
 					break;
 				case NUMBER_CALLED_CODE:
 					Debug.Log($"Got numbers: {packet.Data.GetString(1)}");

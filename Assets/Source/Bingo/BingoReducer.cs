@@ -39,8 +39,8 @@ namespace Source.Bingo {
         }
 
         private static BingoState StartCard(BingoState state, CardStartAction action) {
-            state.Cards[0] = new BingoCard {Numbers = action.StartingNumbers};
-            state.Cards[0].DaubedIndexes.Add(CARD_MIDDLE_INDEX);
+            state.Cards[action.CardIndex] = new BingoCard {Numbers = action.StartingNumbers};
+            state.Cards[action.CardIndex].DaubedIndexes.Add(CARD_MIDDLE_INDEX);
             return state;
         }
 
