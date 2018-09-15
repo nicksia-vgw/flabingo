@@ -1,14 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.Hosting;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Source.Bingo.Views {
     public class CalledNumbersTopView : MonoBehaviour {
+        private int _previousNumbersCount;
+
         private void OnEnable() {
             StateManager.SubscribeUntilDisable(this, state => {
-                LoadNumbers(state.Bingo.CalledNumbers);
+                if (state.Bingo.CalledNumbers.Count > _previousNumbersCount) {
+                    LoadNumbers(state.Bingo.CalledNumbers);
+                }
+
+                _previousNumbersCount = state.Bingo.CalledNumbers.Count;
             });
+            
         }
         
         private void LoadNumbers(List<int> numbers) {
@@ -20,16 +28,32 @@ namespace Source.Bingo.Views {
             for (int i = 0; i < transform.childCount; i++) {
                 var child = transform.GetChild(i);
                 if (i < numbers.Count) {
-                    child.gameObject.SetActive(true);
-                    child.GetComponentsInChildren<Text>()[1].text = "BINGO"[numbers[i] / 15].ToString();
-                    child.GetComponentsInChildren<Text>()[0].text = numbers[i].ToString();
-                    child.GetComponent<Image>().sprite = Resources.Load<Sprite>($"bingoball_{numbers[i] / 15}");
+                    
+                    StartCoroutine(ShowNumberAsync(child, numbers[i]));
                 } else {
                     child.gameObject.SetActive(false);
                 }
+
             }
         }
-        
-        
+
+        private IEnumerator ShowNumberAsync(Transform child, int number) {
+            var uiChild = child.GetChild(0);
+            var rectTransform = uiChild.GetComponent<RectTransform>();
+            
+            var anchoredPosition = rectTransform.anchoredPosition;
+            while (anchoredPosition.x < 170) {
+                anchoredPosition.x += 4;
+                rectTransform.anchoredPosition = anchoredPosition;
+                yield return null;
+            }
+            
+            anchoredPosition.x = 0;
+            rectTransform.anchoredPosition = anchoredPosition;
+            child.gameObject.SetActive(true);
+            uiChild.GetComponentsInChildren<Text>()[1].text = "BINGO"[number / 15].ToString();
+            uiChild.GetComponentsInChildren<Text>()[0].text = number.ToString();
+            uiChild.GetComponent<Image>().sprite = Resources.Load<Sprite>($"bingoball_{number / 15}");
+        }
     }
 }
