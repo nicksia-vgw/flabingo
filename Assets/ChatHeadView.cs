@@ -23,10 +23,10 @@ public class ChatHeadView : MonoBehaviour {
     }
 
     private Image GetEmoteImage() {
-        return transform.GetChild(0).GetChild(0).GetComponent<Image>();
+        return transform.GetChild(1).GetChild(0).GetComponent<Image>();
     }
 
     private GameObject GetEmoteObject() {
-        return transform.GetChild(0).gameObject;
+        return transform.GetChild(1).gameObject;
     }
 }

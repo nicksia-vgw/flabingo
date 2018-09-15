@@ -33,11 +33,12 @@ namespace Source.Bingo.Views {
 
                 if (i != 12) {
                     child.GetComponentInChildren<Text>().text = i < numbers.Count ? numbers[i].ToString() : String.Empty;
+                    if (!child.GetChild(1).gameObject.activeSelf && daubedIndexes.Contains(i)) {
+                        AudioController.Play("daub");
+                    }
                 }
 
-                if (!child.GetChild(1).gameObject.activeSelf && daubedIndexes.Contains(i)) {
-                    AudioController.Play("daub");
-                }
+
                 child.GetChild(1).gameObject.SetActive(daubedIndexes.Contains(i));
             } 
         }
