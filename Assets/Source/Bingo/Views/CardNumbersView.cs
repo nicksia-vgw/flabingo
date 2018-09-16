@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Source.Bingo.Actions;
 using UnityEngine;
@@ -35,6 +36,7 @@ namespace Source.Bingo.Views {
                     child.GetComponentInChildren<Text>().text = i < numbers.Count ? numbers[i].ToString() : String.Empty;
                     if (!child.GetChild(1).gameObject.activeSelf && daubedIndexes.Contains(i)) {
                         AudioController.Play("daub");
+                        
                     }
                 }
 
@@ -42,7 +44,7 @@ namespace Source.Bingo.Views {
                 child.GetChild(1).gameObject.SetActive(daubedIndexes.Contains(i));
             } 
         }
-        
+
         private void ClickButton(int index) {
             StateManager.Dispatch(new CardDaubNumberAction {CardIndex = Index, NumberIndex = index}); 
         }

@@ -87,6 +87,13 @@ namespace Source {
 				.Send(response => StateManager.Dispatch(new AccountDetailsResponseAction { AccountDetailsResponse = response } ));
 		}
 
+		public void ExitBingoGame(float delay) {
+			Debug.Log("Disconnected!");
+			GetComponent<GameSparksRTUnity>().Disconnect();
+			StartCoroutine(UpdateAccountDelayed(1.5f));
+			StartCoroutine(EndGame(delay));
+		}
+
 		private void OnPacketReceived(RTPacket packet) {
 			switch (packet.OpCode) {
 				case STARTING_NUMBERS_CODE:
@@ -97,25 +104,28 @@ namespace Source {
 				case NUMBER_CALLED_CODE:
 					Debug.Log($"Got numbers: {packet.Data.GetString(1)}");
 					List<int> numbersCalled = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
-					AudioController.Play("new_ball_pops");
+
+					StartCoroutine(PlayPopAsync());
 					StateManager.Dispatch(new CalledNumbersUpdateAction {CalledNumbers = numbersCalled});
 					break;
 				case PLAYER_ID_CODE: 
 					Debug.Log($"I am player: {packet.Data.GetString(1)}");
 					break;
-				case END_GAME_CODE: 
-					Debug.Log("Disconnected!");
-					GetComponent<GameSparksRTUnity>().Disconnect();
-					StartCoroutine(UpdateAccountDelayed(1.5f));
-					StartCoroutine(EndGame());
-
+				case END_GAME_CODE:
+					ExitBingoGame(3f);
 					break;
 			}
 			//Debug.Log(packet.OpCode + "-" + packet.Data.ToString());
 		}
+		
+		
+		private IEnumerator PlayPopAsync() {
+			yield return new WaitForSeconds(0.45f);
+			AudioController.Play("new_ball_pops");
+		}
 
-		private IEnumerator EndGame() {
-			yield return new WaitForSeconds(3f);
+		private IEnumerator EndGame(float delay) {
+			yield return new WaitForSeconds(delay);
 			//HideBlockingMessage();
 			GameCanvas.gameObject.SetActive(false);
 			StateManager.Dispatch(new ResetGameAction());

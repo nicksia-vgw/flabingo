@@ -20,7 +20,7 @@ public class RoomViewComponent : MonoBehaviour {
         
         float flipAngle = 0f;
         while (flipAngle < Mathf.PI / 2) {
-            flipAngle += 0.08f;
+            flipAngle += 9.2f * Time.deltaTime;
             SetScaleX(Mathf.Cos(flipAngle));
             yield return null;
         }
@@ -28,7 +28,7 @@ public class RoomViewComponent : MonoBehaviour {
         playCard.SetActive(active);
         
         while (flipAngle > 0) {
-            flipAngle -= 0.08f;
+            flipAngle -= 9.2f * Time.deltaTime;
             SetScaleX(Mathf.Cos(flipAngle));
             yield return null;
         }

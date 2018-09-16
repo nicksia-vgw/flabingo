@@ -42,8 +42,8 @@ namespace Source.Bingo.Views {
             var rectTransform = uiChild.GetComponent<RectTransform>();
             
             var anchoredPosition = rectTransform.anchoredPosition;
-            while (anchoredPosition.x < 170) {
-                anchoredPosition.x += 4;
+            while (anchoredPosition.x < 160) {
+                anchoredPosition.x += 360 * Time.deltaTime;
                 rectTransform.anchoredPosition = anchoredPosition;
                 yield return null;
             }
@@ -51,9 +51,9 @@ namespace Source.Bingo.Views {
             anchoredPosition.x = 0;
             rectTransform.anchoredPosition = anchoredPosition;
             child.gameObject.SetActive(true);
-            uiChild.GetComponentsInChildren<Text>()[1].text = "BINGO"[number / 15].ToString();
+            uiChild.GetComponentsInChildren<Text>()[1].text = "BINGO"[(number - 1) / 15].ToString();
             uiChild.GetComponentsInChildren<Text>()[0].text = number.ToString();
-            uiChild.GetComponent<Image>().sprite = Resources.Load<Sprite>($"bingoball_{number / 15}");
+            uiChild.GetComponent<Image>().sprite = Resources.Load<Sprite>($"bingoball_{(number-1) / 15}");
         }
     }
 }
