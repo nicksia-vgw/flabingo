@@ -21,7 +21,7 @@ public class ChatHeadDummyViewComponent : MonoBehaviour {
 				StartCoroutine(ShowEmoteAsync());
 			}
 			
-			if (state.Bingo.CalledNumbers.Count > (10 * (BingosWon + 1)) && Random.value > 0.85f && BingosWon <= 2) {
+			if ((state.Bingo.CalledNumbers.Count > (15 * (BingosWon + 1))) && Random.value > 0.85f && BingosWon <= 2) {
 				BingosWon++;
 				StartCoroutine(ShowBingoAsync());
 			}
@@ -31,7 +31,6 @@ public class ChatHeadDummyViewComponent : MonoBehaviour {
 	}
 
 	private IEnumerator ShowBingoAsync() {
-
 		yield return new WaitForSeconds(Random.Range(1.5f, 3.5f));
 		GetComponent<ChatHeadView>().ShowBingo();
 	}

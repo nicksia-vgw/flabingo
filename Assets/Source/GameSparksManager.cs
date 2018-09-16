@@ -14,6 +14,7 @@ namespace Source {
 	public class GameSparksManager : MonoBehaviour {
 		public GameObject GameCanvas;
 		public GameObject BlockingMessage;
+		public GameObject WinMessage;
 
 		public static GameSparksManager Instance;
 	
@@ -71,7 +72,7 @@ namespace Source {
 
 		public void Bingo() {
 			Debug.Log("Pressed Bingo!");
-			//SetBlockingMessage("Bingo!");
+			AudioController.Play("applause4");
 			RTData data = new RTData();
 			data.SetString(1, "Bingo!");
 			GetComponent<GameSparksRTUnity>().SendData(BINGO_CODE, GameSparksRT.DeliveryIntent.RELIABLE, data, new int[]{ 0 });
@@ -104,8 +105,7 @@ namespace Source {
 				case NUMBER_CALLED_CODE:
 					Debug.Log($"Got numbers: {packet.Data.GetString(1)}");
 					List<int> numbersCalled = packet.Data.GetString(1).Split(',').Select(int.Parse).ToList();
-
-					StartCoroutine(PlayPopAsync());
+					StartCoroutine(PlayPopAsync(numbersCalled[numbersCalled.Count - 1]));
 					StateManager.Dispatch(new CalledNumbersUpdateAction {CalledNumbers = numbersCalled});
 					break;
 				case PLAYER_ID_CODE: 
@@ -119,9 +119,11 @@ namespace Source {
 		}
 		
 		
-		private IEnumerator PlayPopAsync() {
+		private IEnumerator PlayPopAsync(int i) {
 			yield return new WaitForSeconds(0.45f);
 			AudioController.Play("new_ball_pops");
+			yield return new WaitForSeconds(0.2f);
+			AudioController.PlayVoice($"Kendra_{i}");
 		}
 
 		private IEnumerator EndGame(float delay) {
@@ -129,6 +131,7 @@ namespace Source {
 			//HideBlockingMessage();
 			GameCanvas.gameObject.SetActive(false);
 			StateManager.Dispatch(new ResetGameAction());
+			WinMessage.SetActive(true);
 		}
 
 		private IEnumerator AuthAsync() {

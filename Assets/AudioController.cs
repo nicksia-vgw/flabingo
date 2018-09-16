@@ -18,4 +18,9 @@ public class AudioController : MonoBehaviour {
 		AudioClip audioClip = Resources.Load<AudioClip>($"sfx/{clip}");
 		_audioSource.PlayOneShot(audioClip);
 	}
+	
+	public static void PlayVoice(string clip) {
+		AudioClip audioClip = Resources.Load<AudioClip>($"voice/{clip}");
+		_audioSource.PlayOneShot(audioClip);
+	}
 }
