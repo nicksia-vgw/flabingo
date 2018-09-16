@@ -29,7 +29,7 @@ namespace Source.Bingo.Views {
                 var child = transform.GetChild(i);
                 if (i < numbers.Count) {
                     
-                    StartCoroutine(ShowNumberAsync(child, numbers[i]));
+                    StartCoroutine(ShowNumberAsync(child, numbers[i], i == transform.childCount - 1));
                 } else {
                     child.gameObject.SetActive(false);
                 }
@@ -37,19 +37,26 @@ namespace Source.Bingo.Views {
             }
         }
 
-        private IEnumerator ShowNumberAsync(Transform child, int number) {
+        private IEnumerator ShowNumberAsync(Transform child, int number, bool isLast) {
             var uiChild = child.GetChild(0);
             var rectTransform = uiChild.GetComponent<RectTransform>();
-            
-            var anchoredPosition = rectTransform.anchoredPosition;
-            while (anchoredPosition.x < 160) {
-                anchoredPosition.x += 360 * Time.deltaTime;
-                rectTransform.anchoredPosition = anchoredPosition;
-                yield return null;
+
+            if (isLast) {
+                child.gameObject.SetActive(false);
+                yield return new WaitForSeconds(160f/360f);
             }
-            
-            anchoredPosition.x = 0;
-            rectTransform.anchoredPosition = anchoredPosition;
+            else {
+                var anchoredPosition = rectTransform.anchoredPosition;
+                while (anchoredPosition.x < 160) {
+                    anchoredPosition.x += 360 * Time.deltaTime;
+                    rectTransform.anchoredPosition = anchoredPosition;
+                    yield return null;
+                }
+
+                anchoredPosition.x = 0;
+                rectTransform.anchoredPosition = anchoredPosition;
+            }
+
             child.gameObject.SetActive(true);
             uiChild.GetComponentsInChildren<Text>()[1].text = "BINGO"[(number - 1) / 15].ToString();
             uiChild.GetComponentsInChildren<Text>()[0].text = number.ToString();

@@ -19,6 +19,8 @@ namespace Source.Bingo {
         private static BingoState ResetGame(BingoState state, ResetGameAction action) {
             state.Cards[0] = new BingoCard();
             state.Cards[0].DaubedIndexes.Add(CARD_MIDDLE_INDEX);
+            state.Cards[1] = new BingoCard();
+            state.Cards[1].DaubedIndexes.Add(CARD_MIDDLE_INDEX);
 
             return state;
         }

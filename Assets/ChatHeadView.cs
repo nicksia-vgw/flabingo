@@ -1,9 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ChatHeadView : MonoBehaviour {
+    public Text BingoText;
+    public GameObject FlabingoObj;
+    
     private Coroutine _coroutine;
 
     public void ShowEmote(string emoteName) {
@@ -18,7 +22,7 @@ public class ChatHeadView : MonoBehaviour {
         Image image = GetEmoteImage();
         image.sprite = Resources.Load<Sprite>($"emotes/{emoteName}");
         GetEmoteObject().SetActive(true);
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2f);
         GetEmoteObject().SetActive(false);
     }
 
@@ -28,5 +32,22 @@ public class ChatHeadView : MonoBehaviour {
 
     private GameObject GetEmoteObject() {
         return transform.GetChild(1).gameObject;
+    }
+
+    public void ShowBingo() {
+        StartCoroutine(ShowBingoAsync());
+    }
+    
+    private IEnumerator ShowBingoAsync() {
+        try {
+            BingoText.text = (int.Parse(BingoText.text) - 1).ToString();
+        }
+        catch (Exception e) {
+			
+        }
+		
+        FlabingoObj.SetActive(true);
+        yield return new WaitForSeconds(2.5f);
+        FlabingoObj.SetActive(false);
     }
 }

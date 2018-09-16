@@ -27,9 +27,7 @@ namespace Source.Bingo.Views {
         }
         
         private void UpdateCard(List<int> numbers, List<int> daubedIndexes) {
-            for (int i = 0; i < transform.childCount; i++) {
-                
-                
+            for (int i = 0; i < transform.childCount; i++) {        
                 Transform child = transform.GetChild(i);
 
                 if (i != 12) {
@@ -39,7 +37,6 @@ namespace Source.Bingo.Views {
                         
                     }
                 }
-
 
                 child.GetChild(1).gameObject.SetActive(daubedIndexes.Contains(i));
             } 
